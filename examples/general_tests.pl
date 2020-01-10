@@ -1,12 +1,24 @@
-?- abolish_all_tables.
+:- ['../interp/tnorm'].
+
+:- abolish_all_tables.
+:- discontiguous (if)/2, (~)/2.
+
+run :-
+  findall(X-R, test(X,R),Pairs),
+  sort(Pairs, Sorted),
+  forall(member(X-R,Sorted),
+         (   R == []
+         ->  format('~p~n', [X])
+         ;   format('~p if ~p~n', [X,R])
+         )).
 
 test(X):- test(X,_).
 %%Evaluates Lit, finding the greatest undefined value (meta_tu) and the greatest true value (para_t)
-test(Lit,_):- 
+test(Lit,_):-
 %  meta(Lit),
   para_t(Lit),
   fail.
-test(Lit,Resid):- 
+test(Lit,Resid):-
   Lit = A~W,
   get_residual(para_t_1(A,W),Resid).
 
