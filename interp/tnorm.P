@@ -1,6 +1,6 @@
 %% Todo %%%
 %% Continuous Variables (Belle, Edinburgh)
-%% Correlation between 0 and 1 for tnorms 
+%% Correlation between 0 and 1 for tnorms
 %% Get some good examples of independent
 %% Add in skeptical
 %% Test naf with para_t
@@ -27,25 +27,25 @@ current_tnorm(fuzzy).
 naf(X):- \+(X).
 %-------------------------------------------------------
 
-meta(A~M):- 
+meta(A~M):-
    meta_tu(A~M),fail.
-%meta(A~M):- 
+%meta(A~M):-
 %   meta_t(A~M),fail.
-%meta(A~M):- 
+%meta(A~M):-
 %   meta_t(neg(A)~M),fail.
 meta(_).
 
 % Find the greatest value M at which A is true (if any > 0).
 para_t(A~M):- !,
 	    meta_debug(calling(para_t(A~M))),
-	    (var(M) -> 
+	    (var(M) ->
 	      para_t_1(A,M)
 	    ; para_t_1(A,M1),
 	      % meet(M,M1,M) (wont work due to Prolog problems)
 	      gte(M1,M)).
 
-:- table para_t_1(_,lattice(join(X,Y,Z))).
-para_t_1(A,M):- 
+:- table para_t_1(_,lattice(join(_X,_Y,_Z))).
+para_t_1(A,M):-
 	  if(A,B),
 	  get_rule_weight(B,Body,Weight),
           meta_debug(calling(if(A,Body))),
@@ -57,10 +57,10 @@ para_t_1(A,M):-
 	     measure_complement(M_c,M_new),
 	     ( lt(M_new,M_1) -> M = M_new ; M = M_1),gt_bottom(M)
 %	     (1-M_c < M_1 -> M is 1-M_c ; M = M_1),M > 0
-	   ; 
+	   ;
 	     sk_not(meta_t(Compl~_)),M = M_1),
           meta_debug(succeeded(if(A,Body,M))).
-para_t_1(A,M):- 
+para_t_1(A,M):-
         meta_debug(calling(para_t_1(A,M))),
 	A~M_fact,
            get_top(Top),
@@ -69,7 +69,7 @@ para_t_1(A,M):-
 	   get_complement(Compl~M_c,_,M_c_c),
 	   (lt(M_c_c,M_fact) -> M is M_c_c ; M_fact = M)
 %	   (1-M_c < M_fact -> M is 1-M_c ; M_fact = M)
-         ; 
+         ;
 	   sk_not(meta_t(Compl~_)),M_fact = M),
       meta_debug(succeeded(para_1_t(A,M))).
 
@@ -84,8 +84,8 @@ para_t(naf(A~M),M_in,M_in):- !,
         sk_not(para_t(A~M)).
 para_t((_A;_B),_M_in,_M_out):- !,
       abort('Disjunction not allowed within the body of a quantified rule.').
-para_t(A,M_in,M_out):- 
-        (is_quant(A,CallTerm) -> 
+para_t(A,M_in,M_out):-
+        (is_quant(A,CallTerm) ->
 	   meta_debug(calling(para_t3(A,M_in,M_out))),
 	   para_t(CallTerm),
 	   CallTerm = _~M_mid
@@ -101,17 +101,17 @@ para_t(A,M_in,M_out):-
 
 meta_t(A~M):- !,
 	    meta_debug(calling(meta_t(A~M))),
-	    (var(M) -> 
+	    (var(M) ->
 	      meta_1_t(A,M)
 	    ; meta_1_t(A,M1),
 	      % meet(M,M1,M) (wont work due to Prolog problems)
-%	      M1 >= M). 
+%	      M1 >= M).
 	      gte(M1,M)),
 	    meta_debug(succeeded(meta_t(A~M))).
 
 
-:- table meta_1_t(_,lattice(join(X,Y,Z))).
-meta_1_t(A,M):- 
+:- table meta_1_t(_,lattice(join(_X,_Y,_Z))).
+meta_1_t(A,M):-
 	  if(A,B),
 	  get_rule_weight(B,Body,Weight),
           meta_debug(calling(if(A,Body))),
@@ -119,7 +119,7 @@ meta_1_t(A,M):-
 	  meta_t(Body,Top,M_b),
           meta_debug(succeeded(if(A,Body,M_b))),
 	  apply_rule_weight(Weight,M_b,M).
-meta_1_t(A,M):- 
+meta_1_t(A,M):-
         meta_debug(calling(meta_1_t(A,M))),
 	A~M,
         meta_debug(succeeded(meta_1_t(A,M))).
@@ -139,8 +139,8 @@ meta_t(naf(A~M),M_in,M_in):- !,
 %	meet(M_in,M_mid,M_out).
 %	   M_c is 1 - M_mid,
 %	   sk_not(meta(A~M_c))
-meta_t(A,M_in,M_out):- 
-        (is_quant(A,CallTerm) -> 
+meta_t(A,M_in,M_out):-
+        (is_quant(A,CallTerm) ->
 	   meta_debug(calling(A,M_in,M_out)),
 	   meta_t(CallTerm),
 	   CallTerm = _~M_mid
@@ -148,20 +148,20 @@ meta_t(A,M_in,M_out):-
 %	   sk_not(meta(neg(A)~M_c))
 	 ; call(A),get_top(M_mid)),
 	meet(M_in,M_mid,M_out).
-	
+
 %-------------------------------------------------------
 % Succeeds if A is true or undefined at weight M.
 
 meta_tu(A~M):- !,
 	    meta_debug(calling(meta_tu(A~M))),
-	    (var(M) -> 
+	    (var(M) ->
 	      meta_1_tu(A,M)
 	    ; meta_1_tu(A,M1),
 	      % meet(M,M1,M) (wont work due to Prolog problems)
-	      gte(M1,M)). 
+	      gte(M1,M)).
 
-:- table meta_1_tu(_,lattice(join(X,Y,Z))).
-meta_1_tu(A,M):- 
+:- table meta_1_tu(_,lattice(join(_X,_Y,_Z))).
+meta_1_tu(A,M):-
 	  if(A,B),
 	  get_rule_weight(B,Body,Weight),
           meta_debug(calling(if(A,Body))),
@@ -172,7 +172,7 @@ meta_1_tu(A,M):-
 	  get_complement(A~M,Compl,M_c),
 	  sk_not(meta_tu(Compl~M_c)),
 	  meta_debug(succeeded(meta_1_tu(A,M))).
-meta_1_tu(A,M):- 
+meta_1_tu(A,M):-
         meta_debug(calling(meta_1_tu(A,M))),
 	A~M,
         get_complement(A~M,Compl,M_c),
@@ -193,8 +193,8 @@ meta_tu(naf(A~M),M_in,M_in):- !,
 %	meet(M_in,M_mid,M_out).
 %	   M_c is 1 - M_mid,
 %	   sk_not(meta(A~M_c))
-meta_tu(A,M_in,M_out):- 
-        (is_quant(A,CallTerm) -> 
+meta_tu(A,M_in,M_out):-
+        (is_quant(A,CallTerm) ->
 	   meta_debug(calling(A,M_in,M_out)),
 	   meta_tu(CallTerm),
 	   CallTerm = _~M_mid
@@ -202,11 +202,11 @@ meta_tu(A,M_in,M_out):-
 %	   sk_not(meta(neg(A)~M_c))
 	 ; call(A),get_top(M_mid)),
 	meet(M_in,M_mid,M_out).
-	
+
 %-------------------------------------------------------
 
-get_complement(Lit,CompLit,M):- 
-      (current_tnorm(minmax) -> 
+get_complement(Lit,CompLit,M):-
+      (current_tnorm(minmax) ->
          get_minmax_complement(Lit,CompLit,M)
        ; get_nonstruct_complement(Lit,CompLit,M)).
 
@@ -216,8 +216,8 @@ get_nonstruct_complement(A~M,neg(A),M_c):-!,M_c is 1 - M.
 get_minmax_complement(neg(A)~[Min,Max],A,[Min_c,Max_c]):-!,Min_c is 1 - Max,Max_c is 1 - Min.
 get_minmax_complement(A~[Min,Max],neg(A),[Min_c,Max_c]):-!,Min_c is 1 - Max,Max_c is 1 - Min.
 
-measure_complement(M,M_c):- 
-      (current_tnorm(minmax) -> 
+measure_complement(M,M_c):-
+      (current_tnorm(minmax) ->
          minmax_measure_complement(M,M_c)
        ; nonstruct_measure_complement(M,M_c)).
 
@@ -240,35 +240,35 @@ apply_rule_weight(logistic,M_b,M):- M is 1 / (1 + e**(-(12*M_b-6))).
 get_rule_weight(\(Body,Weight),Body,Weight):- !.
 get_rule_weight(Body,Body,none).
 
-get_top(Top):- 
+get_top(Top):-
     current_tnorm(minmax) -> Top = [1,1] ; Top = 1.
 
-get_bottom(Bottom):- 
+get_bottom(Bottom):-
     current_tnorm(minmax) -> Bottom = [0,0] ; Bottom = 0.
 
-gt_bottom(M):- 
+gt_bottom(M):-
     current_tnorm(minmax) -> get_bottom(Bot),gt(M,Bot) ; M > 0.
 
 /* Independent works, but it assumes exclusivity of derivations, so its tricky to use */
 
-meet(A,B,C):- 
+meet(A,B,C):-
      (current_tnorm(fuzzy) -> (A > B -> C=B ; C=A)
      ; current_tnorm(independent) -> (C is A * B)
      ; current_tnorm(disjoint) -> ((0 > A + B - 1) -> C = 0 ; C is A+B-1)
      ; current_tnorm(minmax) -> minmax_meet(A,B,C)).
 
-minmax_meet([MinA,MaxA],[MinB,MaxB],[MinC,MaxC]):- 
+minmax_meet([MinA,MaxA],[MinB,MaxB],[MinC,MaxC]):-
     ((0 > MinA + MinB - 1) -> MinC = 0 ; MinC is MinA+MinB-1),
     (MaxA > MaxB -> MaxC=MaxB ; MaxC=MaxA).
 
 
-join(A,B,C):- 
+join(A,B,C):-
      (current_tnorm(fuzzy) -> (A > B -> C=A ; C=B)
      ; current_tnorm(independent) -> C is 1 - ( (1-A) * (1 - B))
      ; current_tnorm(disjoint) -> ((A + B > 1) -> C = 1 ; C is A + B)
      ; current_tnorm(minmax) -> minmax_join(A,B,C)).
 
-minmax_join([MinA,MaxA],[MinB,MaxB],[MinC,MaxC]):- 
+minmax_join([MinA,MaxA],[MinB,MaxB],[MinC,MaxC]):-
     (MinA > MinB -> MinC=MinA ; MinC=MinB),
     ((MaxA + MaxB > 1) -> MaxC = 1 ; MaxC is MaxA + MaxB).
 
@@ -288,24 +288,24 @@ set_independent:- set_tnorm(independent).
 set_disjoint:- set_tnorm(disjoint).
 set_minmax:- set_tnorm(minmax).
 
-set_tnorm(Norm):- 
-    (memberchk(Norm,[fuzzy,independent,disjoint,minmax]) -> 
-       true 
+set_tnorm(Norm):-
+    (memberchk(Norm,[fuzzy,independent,disjoint,minmax]) ->
+       true
      ; abort((Norm,'is not one of fuzzy,independent,disjoint,minmax'))),
     abolish_all_tables,
     retractall(current_tnorm(_)),
     assert(current_tnorm(Norm)).
 
 % to handle problems w. floating point precision
-equal_at_precision(X,Y,N):- 
+equal_at_precision(X,Y,N):-
     current_tnorm(minmax) -> eap_minmax(X,Y,N) ; round(X*(10**N)) =:= round(Y*(10**N)).
 
-eap_minmax([A1,A2],[B1,B2],N):- 
+eap_minmax([A1,A2],[B1,B2],N):-
 	round(A1*(10**N)) =:= round(B1*(10**N)),
 	round(A2*(10**N)) =:= round(B2*(10**N)).
 
-meta_debug(Atom):- 
-	(mytrace(on) -> writeln(Atom) ; true). 
+meta_debug(Atom):-
+	(mytrace(on) -> writeln(Atom) ; true).
 
 %------------------------------------------------------------------------------------------------
 end_of_file.
@@ -318,15 +318,15 @@ end_of_file.
 %	    meta(A~_M1,1,M_out),
 %	    (var(M) -> M_out = M ;  M_out > M).
 
-para_t(A~M,true):- 
+para_t(A~M,true):-
    get_residual(meta_1_t(A,M_t),[]),
 %   meta_t(A~M_t),
    call_t_complement(A~M,M_c),
    (1- M_c < M_t -> M is 1 - M_c ; M = M_t).
-para_t(A~M,u):- 
+para_t(A~M,u):-
    get_residual(meta_1_tu(A,M),R),R \= [].
 
-_1_t(A,M):- 
+_1_t(A,M):-
 	  if(A,B),
 	  get_rule_weight(B,Body,Weight),
           meta_debug(calling(if(A,Body))),
@@ -336,43 +336,43 @@ _1_t(A,M):-
 	  apply_rule_weight(Weight,M_b,M).
 
 
-call_compliment(A,M):- 
+call_compliment(A,M):-
 	get_complement(A~M,Compl_A,M_c),
 	sk_not(meta(Compl_A~M_c)),
 	fail.
 call_compliment(_A,_M).
 
-%model(A,T,U,F):- 
+%model(A,T,U,F):-
 %  get_true(A,T).
 
 
-get_true(A,T):- 
+get_true(A,T):-
   get_residual(meta_1(A,M_t),[]),
   get_complement(A,Compl_A),
   get_max_tu(Compl_A,M_c),
   (M_t < (1-M_c) -> T is M_t ; T is 1-M_c).
 
-get_max_tu(Lit,V):- 
+get_max_tu(Lit,V):-
 	setof(W,R^(get_residual(meta_1(Lit,W),R)),Vs),
 	last(Vs,V).
 
 last([V],V):-!.
 last([_|T],V):- last(T,V).
 
-get_tval(Lit,List):- 
+get_tval(Lit,List):-
 	setof(W-T,Resid^(get_residual(meta_1(Lit,W),Resid),
 	                 (Resid = [] -> T = t ; T = u)),List).
 
 % var exceptions below
-get_measure(A,M):- 
+get_measure(A,M):-
 	check_ground(A,get_measure/1,1),
 	(A = _A1~M1 -> M = M1 ; get_top(M)).
 
-call_t_complement(A~_call_t_complement(A~_          get_top(Top),M,M_c):- 
+call_t_complement(A~_call_t_complement(A~_          get_top(Top),M,M_c):-
    get_complement(A~1,Compl,_M_c),
    (meta_1_t(Compl,_),fail ; true),
    get_residual(meta_1_t(Compl,M_c),[]).
-call_t_complement(A,0):- 
+call_t_complement(A,0):-
    get_complement(A~1,Compl,_M_c),
    \+ get_residual(meta_1_t(Compl,_),[]).
 
