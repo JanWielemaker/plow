@@ -1,15 +1,21 @@
 :- ['../interp/tnorm'].
-
+:- op(1200,xfx,if).
+:- op(1100,xfx,\).
+:- op(500,xfx,~).
 :- abolish_all_tables.
-:- discontiguous (if)/2, (~)/2.
+:- multifile (if)/2, (~)/2.
+
+:- import forall/2 from standard.
+:- import member/2 from lists.
+:- import format/2 from format.
 
 run :-
   findall(X-R, test(X,R),Pairs),
   sort(Pairs, Sorted),
   forall(member(X-R,Sorted),
          (   R == []
-         ->  format('~p~n', [X])
-         ;   format('~p if ~p~n', [X,R])
+         ->  format('~q~n', [X])
+         ;   format('~q if ~q~n', [X,R])
          )).
 
 test(X):- test(X,_).
@@ -156,7 +162,7 @@ test_fuzzy_para:- test(rec_boost_c~X),(equal_at_precision(X,0.8,3) -> true ; abo
 test_fuzzy_para:- test(cyc_a~X),(equal_at_precision(X,0.4,3) -> true ; abort(error_fuzzy_para(cyc_a~X))),fail.
 test_fuzzy_para:- test(cyc_b~X),(equal_at_precision(X,0.5,3) -> true ; abort(error_fuzzy_para(cyc_b~X))),fail.
 test_fuzzy_para:- test(nn_t~X,[]),(equal_at_precision(X,1,3) -> true ; abort(error_fuzzy_para(nn_t~X))),fail.
-test_fuzzy_para:- test(nn_u~X,Resid),Resid \== [],(kinda_equal(X,1) -> true ; abort(error_fuzzy_para(nn_f~X))),fail.
+test_fuzzy_para:- test(nn_u~X,Resid),Resid \== [],(kinda_equal(X,1) -> true ; abort(error_fuzzy_para(nn_u~X))),fail.
 test_fuzzy_para:- test(nn_f~X,_), abort(error_fuzzy_para(nn_f~X)),fail.
 test_fuzzy_para.
 
