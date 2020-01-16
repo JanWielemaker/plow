@@ -58,7 +58,7 @@ para_t_1(A,M):-
 	     ( lt(M_new,M_1) -> M = M_new ; M = M_1),gt_bottom(M)
 %	     (1-M_c < M_1 -> M is 1-M_c ; M = M_1),M > 0
 	   ;
-	     sk_not(meta_t(Compl~_)),M = M_1),
+	     not_exists(meta_t(Compl~_)),M = M_1),
           meta_debug(succeeded(if(A,Body,M))).
 para_t_1(A,M):-
         meta_debug(calling(para_t_1(A,M))),
@@ -70,7 +70,7 @@ para_t_1(A,M):-
 	   (lt(M_c_c,M_fact) -> M is M_c_c ; M_fact = M)
 %	   (1-M_c < M_fact -> M is 1-M_c ; M_fact = M)
          ;
-	   sk_not(meta_t(Compl~_)),M_fact = M),
+	   not_exists(meta_t(Compl~_)),M_fact = M),
       meta_debug(succeeded(para_1_t(A,M))).
 
 para_t(','(A,B),M_in,M_out):- !,
@@ -81,7 +81,7 @@ para_t(','(A,B),M_in,M_out):- !,
 % Assuming input is ground.  Can expand later
 para_t(naf(A~M),M_in,M_in):- !,
 	meta_debug(calling(para_t3(A,M_in))),
-        sk_not(para_t(A~M)).
+        not_exists(para_t(A~M)).
 para_t((_A;_B),_M_in,_M_out):- !,
       abort('Disjunction not allowed within the body of a quantified rule.').
 para_t(A,M_in,M_out):-
@@ -131,21 +131,21 @@ meta_t(','(A,B),M_in,M_out):- !,
 	meta_t(B,M_mid,M_out).
 % Assuming input is ground.  Can expand later
 meta_t(naf(A~M),M_in,M_in):- !,
-     sk_not(meta_tu(A~M)).
+     not_exists(meta_tu(A~M)).
 %meta_t(neg(A),M_in,M_out):- !,
 %	meta_debug(calling(meta(neg(A),M_in,M_out))),
 %	meta(CallTerm),
 %	CallTerm = _~M_mid,
 %	meet(M_in,M_mid,M_out).
 %	   M_c is 1 - M_mid,
-%	   sk_not(meta(A~M_c))
+%	   not_exists(meta(A~M_c))
 meta_t(A,M_in,M_out):-
         (is_quant(A,CallTerm) ->
 	   meta_debug(calling(A,M_in,M_out)),
 	   meta_t(CallTerm),
 	   CallTerm = _~M_mid
 %	   M_c is 1 - M_mid,
-%	   sk_not(meta(neg(A)~M_c))
+%	   not_exists(meta(neg(A)~M_c))
 	 ; call(A),get_top(M_mid)),
 	meet(M_in,M_mid,M_out).
 
@@ -170,13 +170,13 @@ meta_1_tu(A,M):-
           meta_debug(succeeded(if(A,Body,M_b))),
 	  apply_rule_weight(Weight,M_b,M),
 	  get_complement(A~M,Compl,M_c),
-	  sk_not(meta_tu(Compl~M_c)),
+	  not_exists(meta_tu(Compl~M_c)),
 	  meta_debug(succeeded(meta_1_tu(A,M))).
 meta_1_tu(A,M):-
         meta_debug(calling(meta_1_tu(A,M))),
 	A~M,
         get_complement(A~M,Compl,M_c),
-	sk_not(meta_tu(Compl~M_c)),
+	not_exists(meta_tu(Compl~M_c)),
         meta_debug(succeeded(meta_1_tu(A,M))).
 
 meta_tu(','(A,B),M_in,M_out):- !,
@@ -185,21 +185,21 @@ meta_tu(','(A,B),M_in,M_out):- !,
 	meta_debug(calling(meta3(B))),
 	meta_tu(B,M_mid,M_out).
 meta_tu(naf(A~M),M_in,M_in):- !,
-     sk_not(meta_t(A~M)).
+     not_exists(meta_t(A~M)).
 %meta_t(neg(A),M_in,M_out):- !,
 %	meta_debug(calling(meta(neg(A),M_in,M_out))),
 %	meta(CallTerm),
 %	CallTerm = _~M_mid,
 %	meet(M_in,M_mid,M_out).
 %	   M_c is 1 - M_mid,
-%	   sk_not(meta(A~M_c))
+%	   not_exists(meta(A~M_c))
 meta_tu(A,M_in,M_out):-
         (is_quant(A,CallTerm) ->
 	   meta_debug(calling(A,M_in,M_out)),
 	   meta_tu(CallTerm),
 	   CallTerm = _~M_mid
 %	   M_c is 1 - M_mid,
-%	   sk_not(meta(neg(A)~M_c))
+%	   not_exists(meta(neg(A)~M_c))
 	 ; call(A),get_top(M_mid)),
 	meet(M_in,M_mid,M_out).
 
@@ -338,7 +338,7 @@ _1_t(A,M):-
 
 call_compliment(A,M):-
 	get_complement(A~M,Compl_A,M_c),
-	sk_not(meta(Compl_A~M_c)),
+	not_exists(meta(Compl_A~M_c)),
 	fail.
 call_compliment(_A,_M).
 
