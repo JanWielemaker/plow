@@ -1,0 +1,30 @@
+:- op(500,xfx,~).
+
+test :-
+    not_exists(meta_tu(nn_1~0.4)).
+
+nn_1~0.6.
+neg(nn_1)~0.6.
+
+:- table meta_1_tu(_,lattice(join(_X,_Y,_Z))).
+
+meta_tu(A~M) :-
+    meta_1_tu(A,M1),
+    M1 >= M.
+
+meta_1_tu(A,M):-
+    A~M,
+    get_complement(A~M,Compl,M_c),
+    not_exists(meta_tu(Compl~M_c)).
+
+get_complement(Lit, CompLit, M) :-
+    get_nonstruct_complement(Lit, CompLit, M).
+
+get_nonstruct_complement(neg(A)~M,A,M_c):-!,M_c is 1 - M.
+get_nonstruct_complement(A~M,neg(A),M_c):-!,M_c is 1 - M.
+
+join(A,B,C):-
+     (   A > B
+     ->  C = A
+     ;   C = B
+     ).
