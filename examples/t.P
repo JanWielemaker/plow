@@ -7,6 +7,7 @@ nn_1~0.6.
 neg(nn_1)~0.6.
 
 :- table meta_1_tu(_,lattice(join(_X,_Y,_Z))).
+%:- table meta_1_tu/2.
 
 meta_tu(A~M) :-
     meta_1_tu(A,M1),
@@ -28,3 +29,42 @@ join(A,B,C):-
      ->  C = A
      ;   C = B
      ).
+
+		 /*******************************
+		 *             SIMPLE		*
+		 *******************************/
+
+d :-
+    prolog_debug('MSG_TABLING_NEG'),
+    trace('$tbl_wkl_add_suspension'/2),
+    debug(tabling(tnot)),
+    debug(tabling(answer)).
+
+p :-
+    abolish_all_tables,
+    p(_X, _Y).
+
+q :-
+    abolish_all_tables,
+    q(_X, _Y).
+
+:- table p(_,lattice(join(_X,_Y,_Z))).
+
+p(1,X) :-
+    my_not_exists(p(1,X)).
+
+:- table q/2.
+
+q(1,X) :-
+    my_not_exists(q(1,X)).
+
+my_not_exists(Goal) :-
+    (   my_tabled_call(Goal),
+        fail
+    ;   tdump(my_tabled_call(_)),
+        tnot(my_tabled_call(Goal))
+    ).
+
+:- table my_tabled_call/1 as variant, opaque.
+
+my_tabled_call(X) :- call(X).
