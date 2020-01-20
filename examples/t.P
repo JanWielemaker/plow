@@ -35,9 +35,11 @@ join(A,B,C):-
 		 *******************************/
 
 d :-
-    prolog_debug('MSG_TABLING_NEG'),
-    trace('$tbl_wkl_add_suspension'/2),
+%    prolog_debug('MSG_TABLING_NEG'),
+%    trace('$tbl_wkl_add_suspension'/2),
+    prolog_debug('MSG_TABLING_MERGE'),
     debug(tabling(tnot)),
+    debug(tabling(schedule)),
     debug(tabling(answer)).
 
 p :-
@@ -61,10 +63,35 @@ q(1,X) :-
 my_not_exists(Goal) :-
     (   my_tabled_call(Goal),
         fail
-    ;   tdump(my_tabled_call(_)),
+    ;   %tdump(my_tabled_call(_)),
         tnot(my_tabled_call(Goal))
     ).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Normal recursion
 
 :- table my_tabled_call/1 as variant, opaque.
 
 my_tabled_call(X) :- call(X).
+
+:- table r(_,lattice(join(_X,_Y,_Z))).
+
+r(1, 1).
+r(1, X) :-
+    r(1, Y),
+    Y < 5,
+    X is Y+1.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Mixed AS/normal
+
+:- table p1/2, pas(_,lattice(join(_X,_Y,_Z))).
+
+p1(X, Y) :-
+    pas(X, Y).
+p1(_, 1).
+
+pas(X, Z) :-
+    p1(X, Y),
+    Y < 5,
+    Z is Y+1.
