@@ -1,8 +1,15 @@
+:- ['../interp/tnorm'].
+:- op(1200,xfx,if).
+:- op(1100,xfx,\).
+:- op(500,xfx,~).
+:- abolish_all_tables.
+:- multifile (if)/2, (~)/2.
+
 ?- abolish_all_tables.
 ?- set_minmax.
 
 c if a,b.
-c_1 if a_1,b.    			% Test calling a rule
+c_1 if a_1,b.				% Test calling a rule
 c_3 if a~M,M=[L,_H],L > 0.7,b.		% Test call w. strength
 c_4 if a_1,naf(b~[1,1]).	        % Test calling a rule + negation
 
@@ -15,7 +22,7 @@ d if b.
 d_1 if a.			% Test mix of fact plus rules
 d_1~[0.8,0.8].
 
-a_1 if a,true.		        	% Test call with non-quant literal.
+a_1 if a,true.				% Test call with non-quant literal.
 
 test:- abolish_all_tables,fail.
 test:- set_tnorm(minmax),fail.
